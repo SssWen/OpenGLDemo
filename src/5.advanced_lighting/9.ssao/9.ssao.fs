@@ -35,6 +35,7 @@ void main()
     for(int i = 0; i < kernelSize; ++i)
     {
         // get sample position
+		// 切线空间变换到相机空间
         vec3 sample = TBN * samples[i]; // from tangent to view-space
         sample = fragPos + sample * radius; 
         
@@ -48,10 +49,18 @@ void main()
         float sampleDepth = texture(gPosition, offset.xy).z; // get depth value of kernel sample
         
         // range check & accumulate
-        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
-        occlusion += (sampleDepth >= sample.z + bias ? 1.0 : 0.0) * rangeCheck;           
+        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));		
+		// 如果采样的位置的深度值 大于 片段深度值【可以理解为在几何体里面】，该位置贡献 遮蔽因子
+		// if the sample position is behind the sampled depth (i.e. inside geometry), 
+		// it contributes to the occlusion factor
+		// 在片段后面的 采样片段提供遮蔽因子
+		// 采用的是右手坐标系
+        occlusion += (sampleDepth >= sample.z + bias ? 1.0 : 0.0) * rangeCheck;// 照亮部分*rangeCheck
+        //occlusion += (sampleDepth <= sample.z + bias ? 1.0 : 0.0) * rangeCheck;// 照亮部分*rangeCheck
+		// depthMap值 >= 当前fragDepth+bias ? 1: 0
     }
-    occlusion = 1.0 - (occlusion / kernelSize);
+    //occlusion =  (occlusion / kernelSize); // 阴影部分是白色，照亮部分是黑色
+    occlusion = 1.0 - (occlusion / kernelSize); // 
     
     FragColor = vec4(occlusion,occlusion,occlusion,1);
 }

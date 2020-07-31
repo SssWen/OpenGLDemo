@@ -170,13 +170,18 @@ int main()
     std::vector<glm::vec3> ssaoKernel;
     for (unsigned int i = 0; i < 64; ++i)
     {
-        glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
+
+		//Z值范围为【0，1】代表法线方向的正半球，如果是【-1，1】则采样完整的球了
+        glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0,
+			randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
         sample = glm::normalize(sample);
         sample *= randomFloats(generator);
         float scale = float(i) / 64.0;
 
         // scale samples s.t. they're more aligned to center of kernel
-        scale = lerp(0.1f, 1.0f, scale * scale);
+		// 将核心样本靠近原点分布
+			scale = lerp(0.1f, 1.0f, scale * scale);
+		//----------
         sample *= scale;
         ssaoKernel.push_back(sample);
     }
