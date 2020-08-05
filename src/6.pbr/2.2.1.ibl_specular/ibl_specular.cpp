@@ -239,7 +239,7 @@ int main()
     // pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
     // -----------------------------------------------------------------------------
     irradianceShader.use();
-    irradianceShader.setInt("environmentMap", 0);
+    irradianceShader.setInt("environmentMap", 0); // envCubemap 还是采样天空盒，用于计算 间接光的 镜面反射部分
     irradianceShader.setMat4("projection", captureProjection);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
@@ -257,8 +257,10 @@ int main()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #pragma endregion
 
-#pragma region 镜面反射相关贴图 prefilterMap 生成pre_filter cubemap,预过滤cubemap,pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale.
-	
+
+
+#pragma region 镜面反射相关贴图 prefilterMap 生成pre_filter cubemap,预过滤cubemap,
+	// 区别：其实最后生成的还是一个CubeMap,只不过是带有mipmap级别的Cubemap	 	
     // pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale.
     // --------------------------------------------------------------------------------
     unsigned int prefilterMap;
@@ -278,8 +280,8 @@ int main()
 
     // pbr: run a quasi monte-carlo simulation on the environment lighting to create a prefilter (cube)map.
     // ----------------------------------------------------------------------------------------------------
-    prefilterShader.use();
-    prefilterShader.setInt("environmentMap", 0);
+    prefilterShader.use(); // prefilter.fs
+    prefilterShader.setInt("environmentMap", 0); // envCubemap 还是采样天空盒，用于计算 间接光的 镜面反射部分
     prefilterShader.setMat4("projection", captureProjection);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
@@ -296,7 +298,7 @@ int main()
         glViewport(0, 0, mipWidth, mipHeight);
 
         float roughness = (float)mip / (float)(maxMipLevels - 1);
-        prefilterShader.setFloat("roughness", roughness);
+        prefilterShader.setFloat("roughness", roughness); 
         for (unsigned int i = 0; i < 6; ++i)
         {
             prefilterShader.setMat4("view", captureViews[i]);
@@ -309,6 +311,7 @@ int main()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #pragma endregion
 
+	// 这张Lut贴图可以不用生成
 #pragma region brdfLUTTexture 生成LUT  贴图,xy分别为 cos(n,v),roughness,这2个值是F函数的系数和偏移, brdf积分进行拆解,生成其中一个brdf的积分
 
     // pbr: generate a 2D LUT from the BRDF equations used.

@@ -1,9 +1,22 @@
-#version 330 core
+ï»¿#version 330 core
 out vec4 FragColor;
 in vec3 WorldPos;
 
-uniform sampler2D equirectangularMap;// Õâ¸öÌùÍ¼ÊÇÖù×´Í¶Ó°Í¼,ÆäÊµÊÇ´ÓÇòÃæ Í¶Ó°µ½ Ô²ÖùÃæµÄ Õ¹¿ª¾ÍÊÇÒ»¸öÆÕÍ¨µÄ2Î¬±³¾°Í¼,¶ø²»ÊÇ6¸öÃæµÄÁ¢·½ÌåÍ¼,±¾À´Ò²¿ÉÒÔÖ±½Ó²ÉÑùµÄ,µ«ÊÇ \
-// 6 ¸öÃæµÄÁ¢·½ÌåÌùÍ¼Ğ§ÂÊ¸ü¸ß,ËùÒÔÕâÀï¸øËûÖØĞÂ×ª»»³É6¸öÃæµÄHDRÍ¼.
+uniform sampler2D equirectangularMap;
+// æŸ±é¢HRDå›¾ï¼ˆé•¿æ–¹å½¢ï¼‰-> 6ä¸ªé¢ç«‹æ–¹ä½“ç¯å¢ƒè´´å›¾
+// è¿™ä¸ªè´´å›¾æ˜¯æŸ±çŠ¶æŠ•å½±å›¾,å…¶å®æ˜¯ä»çƒé¢ æŠ•å½±åˆ° åœ†æŸ±é¢çš„ å±•å¼€å°±æ˜¯ä¸€ä¸ªæ™®é€šçš„2ç»´èƒŒæ™¯å›¾,è€Œä¸æ˜¯6ä¸ªé¢çš„ç«‹æ–¹ä½“å›¾,æœ¬æ¥ä¹Ÿå¯ä»¥ç›´æ¥é‡‡æ ·çš„,ä½†æ˜¯ \
+// 6 ä¸ªé¢çš„ç«‹æ–¹ä½“è´´å›¾æ•ˆç‡æ›´é«˜,æ‰€ä»¥è¿™é‡Œç»™ä»–é‡æ–°è½¬æ¢æˆ6ä¸ªé¢çš„HDRå›¾.
+
+// https://en.wikipedia.org/wiki/Spherical_coordinate_system
+// https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/mathematics-of-shading
+// ç”¨ç›´è§’åæ ‡ç³»ï¼ˆxyzï¼‰è¡¨ç¤ºçƒé¢åæ ‡ç³»ï¼ˆr,Ï†, Î¸ï¼‰
+// r = (x^2+y^2+z^2)2^(1/2)
+// u: Ï• = tanâˆ’1(z/x) --- tanÏ• = z/x ,ä¸xè½´çš„å¤¹è§’,ç±»ä¼¼ç»´åº¦ï¼Œ0~2Ï€
+// v: Î¸ = cosâˆ’1(y/r) --- cosÎ¸ = y/r ,ä¸yè½´çš„å¤¹è§’,ç±»ä¼¼ç»åº¦ï¼Œ0~Ï€
+
+// atan(v.z, v.x) èŒƒå›´ -2Ï€~2Ï€
+// asin(v.y) èŒƒå›´ -Ï€ ~ Ï€
+// 1/Ï€ = 0.3183ï¼Œ  1/2Ï€ = 0.1591
 
 const vec2 invAtan = vec2(0.1591, 0.3183);
 vec2 SampleSphericalMap(vec3 v)
@@ -17,7 +30,7 @@ vec2 SampleSphericalMap(vec3 v)
 void main()
 {		
     vec2 uv = SampleSphericalMap(normalize(WorldPos));
-    vec3 color = texture(equirectangularMap, uv).rgb;
+    vec3 color = texture(equirectangularMap, uv).rgb; // ç†è§£ä¸ºæ ¹æ®æ¯ä¸ªé¢çš„è§’åº¦ï¼Œè½¬æ¢ä¸ºUVï¼Œé‡‡æ ·HDRçŸ©å½¢è´´å›¾ï¼ŒæŠ•å½±åˆ°6ä¸ªé¢ã€‚
     
     FragColor = vec4(color, 1.0);
 }

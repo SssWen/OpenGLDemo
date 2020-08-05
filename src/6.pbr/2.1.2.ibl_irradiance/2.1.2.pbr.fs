@@ -115,11 +115,12 @@ void main()
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;	  
     vec3 irradiance = texture(irradianceMap, N).rgb;
+	// 辐照图是根据法线，采样周围天空盒Cubemap像素的平均值生成的模糊图，用来模拟间接光源的漫反射，indirectLight
     vec3 diffuse      = irradiance * albedo;
-    vec3 ambient = (kD * diffuse) * ao;
+    vec3 ambient = (kD * diffuse) * ao; // ao = 1
     // vec3 ambient = vec3(0.002);
     
-    vec3 color = ambient + Lo;
+    vec3 color = ambient + Lo; // 间接光漫反射 + 直接光镜面反射
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

@@ -82,7 +82,8 @@ int main()
     // -------------------------
     Shader pbrShader("2.1.2.pbr.vs", "2.1.2.pbr.fs");
     Shader equirectangularToCubemapShader("2.1.2.cubemap.vs", "2.1.2.equirectangular_to_cubemap.fs");
-    Shader irradianceShader("2.1.2.cubemap.vs", "2.1.2.irradiance_convolution.fs"); // 卷积着色器,对环境贴图进行平均操作，用来生成漫反射的辐照图cubemap.
+    Shader irradianceShader("2.1.2.cubemap.vs", "2.1.2.irradiance_convolution.fs");
+	// 卷积着色器,对环境贴图进行平均操作，用来生成漫反射的辐照图cubemap.
     Shader backgroundShader("2.1.2.background.vs", "2.1.2.background.fs");
 
 
@@ -204,7 +205,7 @@ int main()
 #pragma endregion
 
 #pragma region 采样cubemap,生成漫反射的卷积cubemap,辐照度cubemap,也是6个方向，envCubeMap.hdr -> irradianceMap.hrd
-
+	// 辐照度贴图也是6个面 
     // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
     // --------------------------------------------------------------------------------
     unsigned int irradianceMap;
@@ -228,6 +229,7 @@ int main()
     // -----------------------------------------------------------------------------
     irradianceShader.use();
     irradianceShader.setInt("environmentMap", 0);
+	// irradiance_convolution // 卷积着色器,对环境贴图进行平均操作，用来生成漫反射的辐照图cubemap.
     irradianceShader.setMat4("projection", captureProjection);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
@@ -242,7 +244,7 @@ int main()
 		// 这里写入cubemap的6个面 +x,-x,+y,-y,+z,-z
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		
         renderCube();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

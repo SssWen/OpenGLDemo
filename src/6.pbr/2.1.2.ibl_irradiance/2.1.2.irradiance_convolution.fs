@@ -1,4 +1,4 @@
-#version 330 core
+ï»¿#version 330 core
 out vec4 FragColor;
 in vec3 WorldPos;
 
@@ -13,7 +13,7 @@ void main()
     // incoming radiance of the environment. The result of this radiance
     // is the radiance of light coming from -Normal direction, which is what
     // we use in the PBR shader to sample irradiance.
-    vec3 N = normalize(WorldPos);
+    vec3 N = normalize(WorldPos); // çƒçš„å±€éƒ¨åæ ‡ï¼Œå¯ä»¥æ¨¡æ‹Ÿçƒçš„æ³•çº¿æ–¹å‘
 
     vec3 irradiance = vec3(0.0);   
     
@@ -24,17 +24,25 @@ void main()
        
     float sampleDelta = 0.025;
     float nrSamples = 0.0;
-    for(float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta) // ÒòÎªÒª°ÑÁ¢·½ÌåµÄÃ¿¸öÏñËØµ±×÷¹âÔ´£¬ËùÒÔ¿ÉÒÔ¶ÔËû½øĞĞ¾í»ı£¬Éú³É·øÕÕ¶ÈÍ¼¡£
-    //¶øÉú³ÉÂş·´ÉäµÄ·øÕÕ¶ÈÍ¼,ÓÃÀ´µ±×÷Âş·´ÉäµÄ¹âÔ´,´Ó»·¾³Á¢·½ÌåÌùÍ¼ÖĞ½øĞĞ¾í»ı,ÆäÊµ¾ÍÊÇÇóÆ½¾ùÖµ£¬»ı·Ö²Ù×÷,¿´ÆğÀ´ÏñÄ£ºı²Ù×÷¡£ÀàËÆÄ£ºıËã×Ó¡£
-    //¶ÔÓĞÏŞÊıÁ¿µÄ·½Ïò²ÉÑùÒÔ½üËÆÇó½â£¬ÔÚ°ëÇòÄÚ¾ùÔÈ¼ä¸ô»òËæ»úÈ¡·½Ïò¿ÉÒÔ»ñµÃÒ»¸öÏàµ±¾«È·µÄ·øÕÕ¶È½üËÆÖµ£¬´Ó¶øÀëÉ¢µØ¼ÆËã»ı·Ö ¡Ò ¡£
+    for(float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta) // Ï•
+	// å› ä¸ºè¦æŠŠç«‹æ–¹ä½“çš„æ¯ä¸ªåƒç´ å½“ä½œå…‰æºï¼Œæ‰€ä»¥å¯ä»¥å¯¹ä»–è¿›è¡Œå·ç§¯ï¼Œç”Ÿæˆè¾ç…§åº¦å›¾ã€‚
+    //è€Œç”Ÿæˆæ¼«åå°„çš„è¾ç…§åº¦å›¾,ç”¨æ¥å½“ä½œæ¼«åå°„çš„å…‰æº,ä»ç¯å¢ƒç«‹æ–¹ä½“è´´å›¾ä¸­è¿›è¡Œå·ç§¯,å…¶å®å°±æ˜¯æ±‚å¹³å‡å€¼ï¼Œç§¯åˆ†æ“ä½œ,çœ‹èµ·æ¥åƒæ¨¡ç³Šæ“ä½œã€‚ç±»ä¼¼æ¨¡ç³Šç®—å­ã€‚
+    //å¯¹æœ‰é™æ•°é‡çš„æ–¹å‘é‡‡æ ·ä»¥è¿‘ä¼¼æ±‚è§£ï¼Œåœ¨åŠçƒå†…å‡åŒ€é—´éš”æˆ–éšæœºå–æ–¹å‘å¯ä»¥è·å¾—ä¸€ä¸ªç›¸å½“ç²¾ç¡®çš„è¾ç…§åº¦è¿‘ä¼¼å€¼ï¼Œä»è€Œç¦»æ•£åœ°è®¡ç®—ç§¯åˆ† âˆ« ã€‚
     {
-        for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)
+		// https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/mathematics-of-shading
+		// è®¡ç®—çƒé¢åæ ‡ç³» åˆ° ç›´è§’åæ ‡ç³»çš„è½¬æ¢		
+		// x = rsin(Î¸)cos(Ï•)
+		// y = rcos(Î¸)
+		// z = rsin(Î¸)sin(Ï•)
+        for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta) // Î¸
         {
             // spherical to cartesian (in tangent space)
+			// åˆ‡çº¿ç©ºé—´ æ³•çº¿
             vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta));
             // tangent space to world
+			// æ³•çº¿è½¬æ¢åˆ°ä¸–ç•Œç©ºé—´ï¼Œä¹˜ä¸Šæ³•çº¿çŸ©é˜µï¼Œright(x,y,z),up(x,y,z),N(x,y,z) ç»„è£…æˆTBNçŸ©é˜µï¼Œè¿™é‡Œçš„TBNçŸ©é˜µè¿˜æœ‰ç‚¹é—®é¢˜		
             vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N; 
-
+			// å¾—åˆ°äº†ç›´è§’åæ ‡ç³»ä¸‹åæ ‡ï¼Œ å»é‡‡æ · CubeMapå¾—åˆ°è¾ç…§åº¦è´´å›¾ã€‚
             irradiance += texture(environmentMap, sampleVec).rgb * cos(theta) * sin(theta);
             nrSamples++;
         }

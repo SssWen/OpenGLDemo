@@ -110,7 +110,8 @@ void main()
 
         // 计算 反射的辐射度radiance = BRDF* 光源辐照度irradiance
         // add to outgoing radiance Lo
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
+		// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }   
     
     vec3 ambient = vec3(0.03) * albedo * ao;
